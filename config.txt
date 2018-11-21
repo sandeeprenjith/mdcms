@@ -1,3 +1,2 @@
-sitename=BytesArena
-password=
+sitename=EnterNameHere
 
