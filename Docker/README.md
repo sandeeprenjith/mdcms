@@ -2,6 +2,8 @@
 
 MDCMS is a simple content management system which lets you write posts in markdown.
 
+For an example site that is built on MDCMS, visit [bytesarena.com](http://bytesarena.com).
+
 MDCMS is written in Go.
 
 ### Advantages
