@@ -1,0 +1,107 @@
+body {
+    background-color: #4d4d4e;
+    font-family: Monospace;
+    color: White;
+}
+
+
+body {
+    background-color: black;
+    font-family: Monospace;
+    color: lightGreen;
+}
+
+pre code {
+  background-color:  #5f6a6a ;
+  border: 1px solid Black;
+  color: White;
+  display: block;
+  width: 96%;
+  margin: 2%;
+  overflow: scroll;
+}
+
+table{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+  display: block;
+  width: 96%;
+  margin: 2%;
+  overflow: scroll;
+}
+
+td,th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    color: black;
+}
+
+td a{
+        text-decoration: none;
+        color: black;
+}
+
+tr:nth-child(even){background-color: #f2f2f2;
+color: black;
+}
+
+tr:hover {background-color: orange;
+color: white;
+}
+
+th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}
+
+img {
+  width: 96%;
+  margin: 2%;
+}
+
+.markdown {
+  background-color: white;
+  color: black;
+  margin: 3%;
+  padding: 3%;
+	}
+
+.footer {
+display: inline-block;    
+vertical-align: bottom;  
+height: 25px;
+background-color: white;
+}
+
+.small {
+width: 100%;
+height: 500px;
+overflow: hidden;
+}
+
+a.home {
+text-decoration: none;
+color: lightgreen;
+}
+p {
+margin: 3%;
+}
+
+.menubar{
+width: 100%;
+    height: 20px;
+    padding:10px;
+    background-color: DarkSlateGray;
+}
+ul.menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+li.menu {
+    display: inline;
+}

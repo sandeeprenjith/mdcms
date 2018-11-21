@@ -1,106 +1,115 @@
 package main
 
 import (
-	_ "github.com/go-sql-driver/mysql" 
-	"database/sql"
-	"crypto/sha256"
-	"encoding/base64"
-	"github.com/russross/blackfriday"
-	"net/http"
 	"html/template"
+	"io/ioutil"
+	"net/http"
+        "log"
+	"github.com/russross/blackfriday"
+	"strings"
 )
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-type user {
-	User string
-	Password string
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+type site struct {
+	Title	string
 }
 
-type content {
-	Title string
-	Date string
-	Content string
+func (s site) Config() string {
+	configfile , err := ioutil.ReadFile("config.txt")
+	handle_err(err)
+	return string(configfile)
+}
+func (s site) SiteName() string {
+	config := s.Config()
+	sitename := strings.Split((strings.Split(config, "sitename=")[1]), "\n")[0]
+	return sitename
 }
 
-func (c content) Date() string {
-        t :=  time.Now().Local().Format("2006-01-02")
-        return t
-}
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Error handler
 func handle_err(err error) {
-	if err != nil {
-		panic(err.Error())
-	}
+        if err != nil {
+                panic(err.Error())
+        }
 }
 
-//Create password hash
-func passwordhash(password string) string {
-        passbyte := []byte(password)
-        passhash := sha256.New()
-        passhash.Write(passbyte)
-        phencoded := base64.URLEncoding.EncodeToString(passhash.Sum(nil))
-        return phencoded
+///Read all files from the relative path "markdown"
+func mdparse() ([]string) {
+
+  files, err := ioutil.ReadDir("markdown")
+  handle_err(err)
+  var mdpaths []string
+  for _, file := range files {
+    mdfile := file.Name()
+    mdpath := "markdown/"+ mdfile
+    mdpaths = append(mdpaths, mdpath)
+  }
+  return mdpaths
 }
 
-//Create tables
-func CreateTables() {
-        db, err := sql.Open("mysql", "root:tester@tcp(127.0.0.1:3306)/mdcms")
-	handle_err(err)
-        defer db.Close()
-
-        c := content{"example", time.Now().Local().Format("2006-01-25"), "asoaijsdojaosjdoajdoiajsodjosaij" }
-        _, err = db.Exec("create table content ( title VARCHAR(50), date DATE, content MEDIUMTEXT);" )
-	handle_err(err)
-
-}
-
-//Creating new content
-func CreateNewContent(title string, newcontent string) {
-        db, err := sql.Open("mysql", "root:tester@tcp(127.0.0.1:3306)/mdcms")
-	handle_err(err)
-        defer db.Close()
-
-        c := content{title, newcontent}
-
-        query1 := "insert into content(title, date, content) values (\"" + c.Title + "\", \"" + c.Date() + "\", \"" + c.Content + "\" );"
-        _, err = db.Exec( query1 )
-	handle_err(err)
-}
-
-//Editing Content
-
-
-func EditContent(title string, newcontent string) {
-        db, err := sql.Open("mysql", "root:tester@tcp(127.0.0.1:3306)/mdcms")
-	handle_err(err)
-        defer db.Close()
-
-        c := content{title, newcontent}
-
-        query1 := "update content set date = \"" + c.Date() + "\", content = \"" + c.Content + "\" where title = \"" + c.Title +"\";"
-        _, err = db.Exec(query1)
-	handle_err(err)
-}
-
-//Deleting content
-func DeleteContent(title string) {
-        db, _ := sql.Open("mysql", "root:tester@tcp(127.0.0.1:3306)/mdcms")
-        defer db.Close()
-
-        c := content{Title: title}
-
-        query1 := "delete from content where title = \"" + c.Title + "\";"
-        _, _ = db.Exec(query1)
-}
 
 // Parsing markdown
-func mdparse(markdown string) string {
-        input := []byte(markdown)
-        output := string(blackfriday.MarkdownCommon(input))
-        return output
+func mdtohtml(markdownfile string) string {
+	file, err := ioutil.ReadFile(markdownfile)
+	handle_err(err)
+        output := string(blackfriday.MarkdownCommon(file))
+	md := "<div class=\"markdown\">" + output + "</div>"
+        return  md
+}
+//General URL handler function
+func handler(w http.ResponseWriter, r *http.Request, html_input string, data site) {
+	content := template.New("content")
+	content.Parse(html_input)
+	content.ParseFiles("templates/base.gohtml")
+	content.ExecuteTemplate(w, "base", data)
+}
+
+//Index Handler. Parse the markdown files read y mdparse() with the base layout template(templates/base.gohtml) and display at /
+func index(w http.ResponseWriter, r *http.Request) {
+	mysite := site{"Home"}
+	var mdhtml  string
+        for _, mdpath := range mdparse() {
+	  contenttitle := strings.Split((strings.Split(mdpath, "/")[1]), ".md")[0]
+	  contenttitleuri := "/content/" + contenttitle
+	  mdhtml = mdhtml + "<div class=\"small\">" + mdtohtml(mdpath) + "</div> <p> <a class=\"home\" href=\"" + contenttitleuri +"\">Read More</a> </p>"
+        }
+	handler(w, r, mdhtml, mysite)
+}
+
+//About handler. Parse about.html(template/about.gohtml) with base.gohtml and display at /about.
+func about(w http.ResponseWriter, r *http.Request) {
+	mysite := site{"About"}
+        abouthtml := mdtohtml("templates/about.md")
+	handler(w, r, abouthtml, mysite)
+}
+
+//Content Handler
+func contenthandler(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Path[len("/content/"):]
+	mysite := site{title}
+	contenthtml := mdtohtml("markdown/"+ title + ".md")
+	handler(w, r, contenthtml, mysite)
+}
+
+//Downloads page handler.
+func downloads(w http.ResponseWriter, r *http.Request) {
+	mysite := site{"Downloads"}
+	downloadhtml := mdtohtml("templates/downloads.md")
+	handler(w, r, downloadhtml, mysite)
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-func main(){
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+func main() {
+
+	http.HandleFunc("/", index)
+        http.HandleFunc("/about", about)
+	http.HandleFunc("/content/", contenthandler)
+	http.HandleFunc("/downloads/", downloads)
+	//static serving
+	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
+	http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("styles"))))
+	http.Handle("/files/", http.StripPrefix("/files/", http.FileServer(http.Dir("files"))))
+	log.Fatal(http.ListenAndServe(":80", nil))
+
 }

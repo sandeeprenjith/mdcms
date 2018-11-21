@@ -1,0 +1,38 @@
+{{ define "base"}}
+
+<html>
+
+<head>
+
+  <title>
+    {{ .Title }}
+  </title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel=stylesheet type=text/css href="/styles/styles.css">
+
+</head>
+
+<body>
+  <div class="header">
+  <h1> {{ .SiteName }} </h1>
+  </div>
+  <div class="menubar">
+   <ul class="menu">
+   <li class="menu"> <a class="home" href="/">Home</a>
+   <li class="menu"> <a class="home" href="/about">About</a>
+   <li class="menu"> <a class="home" href="/downloads">Downloads</a>
+   </ul> 
+  </div>
+
+  {{ template "content" .}}
+  
+
+
+
+</body>
+
+</html>
+
+{{ end }}
