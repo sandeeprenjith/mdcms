@@ -11,6 +11,8 @@ MDCMS is written in Go.
 * Lightweight
 * Migration is a piece of cake (very portable)
 
+### Setup
+
 Here are the steps to set up a website in minutes.
 
 * Create three directories: ***markdown***, ***images*** and ***files***.
