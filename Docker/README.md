@@ -59,3 +59,4 @@ You can add an about section by adding text to the ***about.md*** file in markdo
 You can add content to your site by adding markdown files to the ***markdown*** directory.
 
 The site comes with a *Downloads* section. If you need to serve files, add them to the files directory. You can add writeups about them in the ***downloads.md*** file and add links pointing to "/files/<filename>".
+  
