@@ -27,6 +27,8 @@ mkdir markdown images files
 
 ```
 touch config.txt
+touch about.md
+touch downloads.md
 
 ```
 * Edit config.txt and enter the below text. Replate <name> with your website's name.
