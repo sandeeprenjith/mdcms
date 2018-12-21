@@ -6,6 +6,8 @@ For an example site that is built on MDCMS, visit [bytesarena.com](http://bytesa
 
 MDCMS is written in Go.
 
+[License](LICENSE)
+
 ### Advantages
 
 * KISS
